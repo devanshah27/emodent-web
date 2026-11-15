@@ -1,0 +1,616 @@
+{
+  "dataset_summary": {
+    "total_participants": 30,
+    "total_phase_entries": 240,
+    "total_raw_frames": 18000,
+    "raters_present": [
+      "rater1",
+      "rater2"
+    ]
+  },
+  "agreement_primary_threshold_vcas1": {
+    "PRE_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 15,
+        "TN": 15,
+        "N": 30
+      },
+      "observed_agreement": 0.5,
+      "cohens_kappa": 0.0,
+      "pabak": 0.0,
+      "gwets_ac1": 0.2,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.5,
+      "true_positive_rate": 0.5,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (50.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "LOCAL_ANESTHESIA": {
+      "confusion_matrix": {
+        "TP": 30,
+        "FP": 0,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 1.0,
+      "cohens_kappa": 1.0,
+      "pabak": 1.0,
+      "gwets_ac1": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 1.0,
+      "npv": 0.0,
+      "true_positive_rate": 1.0,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (100.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "EXTRACTION": {
+      "confusion_matrix": {
+        "TP": 30,
+        "FP": 0,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 1.0,
+      "cohens_kappa": 1.0,
+      "pabak": 1.0,
+      "gwets_ac1": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 1.0,
+      "npv": 0.0,
+      "true_positive_rate": 1.0,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (100.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "POST_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 17,
+        "TN": 13,
+        "N": 30
+      },
+      "observed_agreement": 0.4333,
+      "cohens_kappa": 0.0,
+      "pabak": -0.1333,
+      "gwets_ac1": 0.0458,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.4333,
+      "true_positive_rate": 0.5667,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (56.7%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    }
+  },
+  "agreement_primary_threshold_vfas1": {
+    "PRE_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 12,
+        "TN": 18,
+        "N": 30
+      },
+      "observed_agreement": 0.6,
+      "cohens_kappa": 0.0,
+      "pabak": 0.2,
+      "gwets_ac1": 0.4118,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.6,
+      "true_positive_rate": 0.4,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (40.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "LOCAL_ANESTHESIA": {
+      "confusion_matrix": {
+        "TP": 30,
+        "FP": 0,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 1.0,
+      "cohens_kappa": 1.0,
+      "pabak": 1.0,
+      "gwets_ac1": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 1.0,
+      "npv": 0.0,
+      "true_positive_rate": 1.0,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (100.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "EXTRACTION": {
+      "confusion_matrix": {
+        "TP": 30,
+        "FP": 0,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 1.0,
+      "cohens_kappa": 1.0,
+      "pabak": 1.0,
+      "gwets_ac1": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 1.0,
+      "npv": 0.0,
+      "true_positive_rate": 1.0,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (100.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "POST_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 12,
+        "TN": 18,
+        "N": 30
+      },
+      "observed_agreement": 0.6,
+      "cohens_kappa": 0.0,
+      "pabak": 0.2,
+      "gwets_ac1": 0.4118,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.6,
+      "true_positive_rate": 0.4,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (40.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    }
+  },
+  "agreement_fbrs_behavior_negative": {
+    "PRE_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 1,
+        "TN": 29,
+        "N": 30
+      },
+      "observed_agreement": 0.9667,
+      "cohens_kappa": 0.0,
+      "pabak": 0.9333,
+      "gwets_ac1": 0.9655,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.9667,
+      "true_positive_rate": 0.0333,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (3.3%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "LOCAL_ANESTHESIA": {
+      "confusion_matrix": {
+        "TP": 28,
+        "FP": 2,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 0.9333,
+      "cohens_kappa": 0.0,
+      "pabak": 0.8667,
+      "gwets_ac1": 0.9287,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 0.9333,
+      "npv": 0.0,
+      "true_positive_rate": 0.9333,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (93.3%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "EXTRACTION": {
+      "confusion_matrix": {
+        "TP": 28,
+        "FP": 2,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 0.9333,
+      "cohens_kappa": 0.0,
+      "pabak": 0.8667,
+      "gwets_ac1": 0.9287,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 0.9333,
+      "npv": 0.0,
+      "true_positive_rate": 0.9333,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (93.3%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "POST_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 2,
+        "TN": 28,
+        "N": 30
+      },
+      "observed_agreement": 0.9333,
+      "cohens_kappa": 0.0,
+      "pabak": 0.8667,
+      "gwets_ac1": 0.9287,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.9333,
+      "true_positive_rate": 0.0667,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (6.7%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    }
+  },
+  "agreement_sensitivity_threshold_vcas2": {
+    "PRE_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 4,
+        "TN": 26,
+        "N": 30
+      },
+      "observed_agreement": 0.8667,
+      "cohens_kappa": 0.0,
+      "pabak": 0.7333,
+      "gwets_ac1": 0.8477,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.8667,
+      "true_positive_rate": 0.1333,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (13.3%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "LOCAL_ANESTHESIA": {
+      "confusion_matrix": {
+        "TP": 30,
+        "FP": 0,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 1.0,
+      "cohens_kappa": 1.0,
+      "pabak": 1.0,
+      "gwets_ac1": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 1.0,
+      "npv": 0.0,
+      "true_positive_rate": 1.0,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (100.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "EXTRACTION": {
+      "confusion_matrix": {
+        "TP": 30,
+        "FP": 0,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 1.0,
+      "cohens_kappa": 1.0,
+      "pabak": 1.0,
+      "gwets_ac1": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 1.0,
+      "npv": 0.0,
+      "true_positive_rate": 1.0,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (100.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "POST_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 1,
+        "TN": 29,
+        "N": 30
+      },
+      "observed_agreement": 0.9667,
+      "cohens_kappa": 0.0,
+      "pabak": 0.9333,
+      "gwets_ac1": 0.9655,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.9667,
+      "true_positive_rate": 0.0333,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (3.3%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    }
+  },
+  "agreement_sensitivity_threshold_vfas2": {
+    "PRE_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 0,
+        "TN": 30,
+        "N": 30
+      },
+      "observed_agreement": 1.0,
+      "cohens_kappa": 1.0,
+      "pabak": 1.0,
+      "gwets_ac1": 1.0,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 1.0,
+      "true_positive_rate": 0.0,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (0.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "LOCAL_ANESTHESIA": {
+      "confusion_matrix": {
+        "TP": 29,
+        "FP": 1,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 0.9667,
+      "cohens_kappa": 0.0,
+      "pabak": 0.9333,
+      "gwets_ac1": 0.9655,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 0.9667,
+      "npv": 0.0,
+      "true_positive_rate": 0.9667,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (96.7%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "EXTRACTION": {
+      "confusion_matrix": {
+        "TP": 30,
+        "FP": 0,
+        "FN": 0,
+        "TN": 0,
+        "N": 30
+      },
+      "observed_agreement": 1.0,
+      "cohens_kappa": 1.0,
+      "pabak": 1.0,
+      "gwets_ac1": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "ppv": 1.0,
+      "npv": 0.0,
+      "true_positive_rate": 1.0,
+      "pred_positive_rate": 1.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (100.0%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    },
+    "POST_TREATMENT": {
+      "confusion_matrix": {
+        "TP": 0,
+        "FP": 0,
+        "FN": 2,
+        "TN": 28,
+        "N": 30
+      },
+      "observed_agreement": 0.9333,
+      "cohens_kappa": 0.0,
+      "pabak": 0.8667,
+      "gwets_ac1": 0.9287,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "ppv": 0.0,
+      "npv": 0.9333,
+      "true_positive_rate": 0.0667,
+      "pred_positive_rate": 0.0,
+      "high_prevalence_warning": true,
+      "warning_message": "HIGH PREVALENCE WARNING: Positive prevalence (6.7%) exceeds 90% or is under 10%. Cohen's kappa suffers from the prevalence paradox and may be severely suppressed despite high agreement. Do NOT present Gwet's AC1 alone as proof of accuracy; evaluate sensitivity, specificity, and confusion table."
+    }
+  },
+  "spearman_correlations": {
+    "PRE_TREATMENT": {
+      "VCAS": {
+        "rho": 0.0194,
+        "p_value": 0.9191086911265515,
+        "ci_lower": -0.3433,
+        "ci_upper": 0.377,
+        "n": 30
+      },
+      "VFAS": {
+        "rho": -0.0079,
+        "p_value": 0.967106773826095,
+        "ci_lower": -0.3671,
+        "ci_upper": 0.3534,
+        "n": 30
+      },
+      "FBRS_reversed_(5-FBRS)": {
+        "rho": -0.2274,
+        "p_value": 0.22681420827008097,
+        "ci_lower": -0.5432,
+        "ci_upper": 0.1447,
+        "n": 30
+      }
+    },
+    "LOCAL_ANESTHESIA": {
+      "VCAS": {
+        "rho": -0.3028,
+        "p_value": 0.10382163759464176,
+        "ci_lower": -0.5979,
+        "ci_upper": 0.0645,
+        "n": 30
+      },
+      "VFAS": {
+        "rho": 0.0512,
+        "p_value": 0.7882235312137705,
+        "ci_lower": -0.3149,
+        "ci_upper": 0.404,
+        "n": 30
+      },
+      "FBRS_reversed_(5-FBRS)": {
+        "rho": -0.2682,
+        "p_value": 0.15187943314197036,
+        "ci_lower": -0.5731,
+        "ci_upper": 0.1019,
+        "n": 30
+      }
+    },
+    "EXTRACTION": {
+      "VCAS": {
+        "rho": -0.0111,
+        "p_value": 0.9536895639907733,
+        "ci_lower": -0.3699,
+        "ci_upper": 0.3506,
+        "n": 30
+      },
+      "VFAS": {
+        "rho": -0.2431,
+        "p_value": 0.1955904202588597,
+        "ci_lower": -0.5547,
+        "ci_upper": 0.1285,
+        "n": 30
+      },
+      "FBRS_reversed_(5-FBRS)": {
+        "rho": -0.0223,
+        "p_value": 0.9068808307649057,
+        "ci_lower": -0.3795,
+        "ci_upper": 0.3407,
+        "n": 30
+      }
+    },
+    "POST_TREATMENT": {
+      "VCAS": {
+        "rho": -0.0042,
+        "p_value": 0.9824652002253874,
+        "ci_lower": -0.3639,
+        "ci_upper": 0.3566,
+        "n": 30
+      },
+      "VFAS": {
+        "rho": -0.3326,
+        "p_value": 0.07255467622477474,
+        "ci_lower": -0.6187,
+        "ci_upper": 0.0315,
+        "n": 30
+      },
+      "FBRS_reversed_(5-FBRS)": {
+        "rho": -0.1941,
+        "p_value": 0.3040533261182369,
+        "ci_lower": -0.5181,
+        "ci_upper": 0.1787,
+        "n": 30
+      }
+    }
+  },
+  "cross_scale_correlations": {
+    "VCAS_vs_VFAS": {
+      "rho": 0.7851,
+      "p_value": 2.600935333181498e-26,
+      "ci_lower": 0.7051,
+      "ci_upper": 0.8454,
+      "n": 120
+    },
+    "VCAS_vs_Reversed_FBRS": {
+      "rho": 0.8015,
+      "p_value": 4.1155878871935495e-28,
+      "ci_lower": 0.7266,
+      "ci_upper": 0.8575,
+      "n": 120
+    },
+    "VFAS_vs_Reversed_FBRS": {
+      "rho": 0.796,
+      "p_value": 1.723100062932588e-27,
+      "ci_lower": 0.7194,
+      "ci_upper": 0.8535,
+      "n": 120
+    }
+  },
+  "inter_rater_reliability": {
+    "raters": [
+      "rater1",
+      "rater2"
+    ],
+    "pairs_evaluated": 120,
+    "VCAS_quadratic_weighted_kappa": {
+      "weighted_kappa": 0.7976,
+      "observed_agreement": 0.45,
+      "weighted_po": 0.9552,
+      "weighted_pe": 0.7787,
+      "n": 120
+    },
+    "VFAS_quadratic_weighted_kappa": {
+      "weighted_kappa": 0.8167,
+      "observed_agreement": 0.4667,
+      "weighted_po": 0.9526,
+      "weighted_pe": 0.7414,
+      "n": 120
+    },
+    "FBRS_quadratic_weighted_kappa": {
+      "weighted_kappa": 0.7951,
+      "observed_agreement": 0.6333,
+      "weighted_po": 0.9565,
+      "weighted_pe": 0.7876,
+      "n": 120
+    }
+  },
+  "friedman_test": {
+    "ai_negative_rate": {
+      "friedman_chi2": 80.2,
+      "p_value": 2.7805828502804077e-17,
+      "kendalls_w": 0.8911,
+      "num_subjects": 30,
+      "num_phases": 4
+    },
+    "VCAS": {
+      "friedman_chi2": 74.7556,
+      "p_value": 4.0878633759405106e-16,
+      "kendalls_w": 0.8306,
+      "num_subjects": 30,
+      "num_phases": 4
+    },
+    "VFAS": {
+      "friedman_chi2": 79.5221,
+      "p_value": 3.886422734033087e-17,
+      "kendalls_w": 0.8836,
+      "num_subjects": 30,
+      "num_phases": 4
+    },
+    "FBRS_reversed_(5-FBRS)": {
+      "friedman_chi2": 78.5059,
+      "p_value": 6.419266268778012e-17,
+      "kendalls_w": 0.8723,
+      "num_subjects": 30,
+      "num_phases": 4
+    }
+  }
+}

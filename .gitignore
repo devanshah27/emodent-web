@@ -1,0 +1,35 @@
+# Node & Frontend dependencies
+node_modules/
+web/node_modules/
+dist/
+web/dist/
+.vite/
+web/.vite/
+
+# Python & ML artifacts
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Large Datasets & Raw Images (FER-2013)
+data/
+train/
+test/
+*.zip
+*.tar.gz
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+.vercel
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini

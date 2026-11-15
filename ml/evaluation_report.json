@@ -1,0 +1,93 @@
+{
+  "overall_accuracy": 65.10583707504811,
+  "classification_report_dict": {
+    "angry": {
+      "precision": 0.5902293120638086,
+      "recall": 0.6179540709812108,
+      "f1-score": 0.6037735849056604,
+      "support": 958.0
+    },
+    "fear": {
+      "precision": 0.5717703349282297,
+      "recall": 0.466796875,
+      "f1-score": 0.513978494623656,
+      "support": 1024.0
+    },
+    "happy": {
+      "precision": 0.9006662628709873,
+      "recall": 0.8382187147688839,
+      "f1-score": 0.8683211678832117,
+      "support": 1774.0
+    },
+    "neutral": {
+      "precision": 0.5891304347826087,
+      "recall": 0.6593673965936739,
+      "f1-score": 0.6222732491389208,
+      "support": 1233.0
+    },
+    "sad": {
+      "precision": 0.5051244509516838,
+      "recall": 0.5533279871692061,
+      "f1-score": 0.5281285878300803,
+      "support": 1247.0
+    },
+    "accuracy": 0.6510583707504811,
+    "macro avg": {
+      "precision": 0.6313841591194638,
+      "recall": 0.627133008902595,
+      "f1-score": 0.6272950168763058,
+      "support": 6236.0
+    },
+    "weighted avg": {
+      "precision": 0.6582749311546623,
+      "recall": 0.6510583707504811,
+      "f1-score": 0.6528175256368607,
+      "support": 6236.0
+    }
+  },
+  "classification_report_text": "              precision    recall  f1-score   support\n\n       angry       0.59      0.62      0.60       958\n        fear       0.57      0.47      0.51      1024\n       happy       0.90      0.84      0.87      1774\n     neutral       0.59      0.66      0.62      1233\n         sad       0.51      0.55      0.53      1247\n\n    accuracy                           0.65      6236\n   macro avg       0.63      0.63      0.63      6236\nweighted avg       0.66      0.65      0.65      6236\n",
+  "confusion_matrix": [
+    [
+      592,
+      91,
+      28,
+      94,
+      153
+    ],
+    [
+      147,
+      478,
+      29,
+      126,
+      244
+    ],
+    [
+      46,
+      56,
+      1487,
+      118,
+      67
+    ],
+    [
+      78,
+      65,
+      65,
+      813,
+      212
+    ],
+    [
+      140,
+      146,
+      42,
+      229,
+      690
+    ]
+  ],
+  "classes": [
+    "angry",
+    "fear",
+    "happy",
+    "neutral",
+    "sad"
+  ]
+}
