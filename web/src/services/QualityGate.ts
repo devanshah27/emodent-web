@@ -20,9 +20,9 @@ export function evaluateQualityGate(input: QualityGateInput): QualityGateResult 
     videoWidth,
     videoHeight,
     prevCenter,
-    minBoxSizePx = 64,
-    minConfidence = 0.50,
-    maxMotionDisplacement = 0.15, // normalized distance relative to video dimension
+    minBoxSizePx = 40,
+    minConfidence = 0.35,
+    maxMotionDisplacement = 0.25, // normalized distance relative to video dimension
   } = input;
 
   // 1. Check presence of landmarks

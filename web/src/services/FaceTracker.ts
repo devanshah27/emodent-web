@@ -4,6 +4,11 @@ import { BoundingBox } from '../types';
 export class FaceTracker {
   private landmarker: FaceLandmarker | null = null;
   private isInitialized = false;
+  private consecutiveErrors = 0;
+  private isRecovering = false;
+  private lastTimestampMs = -1;
+  private preferredDelegate: 'GPU' | 'CPU' = 'GPU';
+  private initPromise: Promise<void> | null = null;
 
   // Reusable canvas and memory buffers to prevent Garbage Collection pauses
   private offscreenCanvas: HTMLCanvasElement;
@@ -18,41 +23,137 @@ export class FaceTracker {
     this.preallocatedFloatArray = new Float32Array(48 * 48);
   }
 
-  public async init(): Promise<void> {
-    if (this.isInitialized && this.landmarker) return;
-
-    try {
-      const vision = await FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
-      );
-
-      this.landmarker = await FaceLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath:
-            'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
-          delegate: 'GPU',
-        },
-        runningMode: 'VIDEO',
-        numFaces: 1,
-        outputFaceBlendshapes: true,
-        outputFacialTransformationMatrixes: false,
-      });
-
-      this.isInitialized = true;
-    } catch (err) {
-      console.error('Failed to initialize MediaPipe FaceLandmarker:', err);
-      throw err;
-    }
+  public isReady(): boolean {
+    return this.isInitialized && !!this.landmarker;
   }
 
+  public resetTracking(): void {
+    this.lastTimestampMs = -1;
+    this.consecutiveErrors = 0;
+  }
+
+  public async reinit(): Promise<void> {
+    this.close();
+    await this.init();
+  }
+
+  public async init(): Promise<void> {
+    if (this.isInitialized && this.landmarker) return;
+    if (this.initPromise) return this.initPromise;
+
+    this.initPromise = (async () => {
+      try {
+        const vision = await FilesetResolver.forVisionTasks(
+          'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
+        );
+
+        // Attempt initialization with preferred delegate (GPU by default, or CPU fallback)
+        try {
+          this.landmarker = await FaceLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+              delegate: this.preferredDelegate,
+            },
+            runningMode: 'VIDEO',
+            numFaces: 1,
+            minFaceDetectionConfidence: 0.3,
+            minFacePresenceConfidence: 0.3,
+            minTrackingConfidence: 0.3,
+            outputFaceBlendshapes: true,
+            outputFacialTransformationMatrixes: false,
+          });
+          this.isInitialized = true;
+          this.consecutiveErrors = 0;
+        } catch (delegateErr) {
+          if (this.preferredDelegate === 'GPU') {
+            console.warn('GPU delegate failed for MediaPipe FaceLandmarker, falling back to CPU:', delegateErr);
+            this.preferredDelegate = 'CPU';
+            this.landmarker = await FaceLandmarker.createFromOptions(vision, {
+              baseOptions: {
+                modelAssetPath:
+                  'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+                delegate: 'CPU',
+              },
+              runningMode: 'VIDEO',
+              numFaces: 1,
+              minFaceDetectionConfidence: 0.3,
+              minFacePresenceConfidence: 0.3,
+              minTrackingConfidence: 0.3,
+              outputFaceBlendshapes: true,
+              outputFacialTransformationMatrixes: false,
+            });
+            this.isInitialized = true;
+            this.consecutiveErrors = 0;
+          } else {
+            throw delegateErr;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to initialize MediaPipe FaceLandmarker:', err);
+        this.isInitialized = false;
+        this.landmarker = null;
+        throw err;
+      }
+    })().finally(() => {
+      this.initPromise = null;
+    });
+
+    return this.initPromise;
+  }
+
+  /**
+   * Detects facial landmarks and blendshapes from the video element.
+   * Guarantees strictly monotonically increasing timestamps and auto-heals on failure.
+   */
   public detectForVideo(video: HTMLVideoElement, timestampMs: number): FaceLandmarkerResult | null {
-    if (!this.landmarker || !this.isInitialized) {
+    // Check if video is valid and has active pixel dimensions
+    if (!video || video.readyState < 2 || !video.videoWidth || !video.videoHeight || video.paused) {
       return null;
     }
+
+    // Auto-recover if uninitialized or previously failed
+    if (!this.landmarker || !this.isInitialized) {
+      if (!this.isRecovering) {
+        this.isRecovering = true;
+        this.init()
+          .catch((err) => console.warn('Background FaceLandmarker auto-recovery failed:', err))
+          .finally(() => {
+            this.isRecovering = false;
+          });
+      }
+      return null;
+    }
+
+    // Enforce strictly monotonically increasing timestamps required by MediaPipe VIDEO mode
+    let validTimestamp = Math.round(timestampMs);
+    if (validTimestamp <= this.lastTimestampMs) {
+      validTimestamp = this.lastTimestampMs + 1;
+    }
+    this.lastTimestampMs = validTimestamp;
+
     try {
-      return this.landmarker.detectForVideo(video, timestampMs);
+      const result = this.landmarker.detectForVideo(video, validTimestamp);
+      this.consecutiveErrors = 0;
+      return result;
     } catch (err) {
       console.warn('FaceLandmarker detectForVideo error:', err);
+      this.consecutiveErrors++;
+
+      // If detection fails repeatedly (e.g. WebGL context loss on mobile), auto-heal
+      if (this.consecutiveErrors >= 3 && !this.isRecovering) {
+        console.warn('FaceLandmarker encountered repeated errors, auto-recovering...');
+        this.isRecovering = true;
+        if (this.preferredDelegate === 'GPU') {
+          this.preferredDelegate = 'CPU'; // Fallback to rock-solid CPU delegate
+        }
+        this.close();
+        this.init()
+          .catch((reInitErr) => console.error('FaceLandmarker re-init failed:', reInitErr))
+          .finally(() => {
+            this.isRecovering = false;
+          });
+      }
       return null;
     }
   }
@@ -131,9 +232,14 @@ export class FaceTracker {
 
   public close(): void {
     if (this.landmarker) {
-      this.landmarker.close();
+      try {
+        this.landmarker.close();
+      } catch {
+        // ignore close error
+      }
       this.landmarker = null;
       this.isInitialized = false;
+      this.lastTimestampMs = -1;
     }
   }
 }

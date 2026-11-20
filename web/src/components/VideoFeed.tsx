@@ -16,7 +16,7 @@ import {
   QualityFlag,
   BlendshapeCategory,
 } from '../types';
-import { Camera, CameraOff, Video, AlertCircle, SwitchCamera, FlipHorizontal } from 'lucide-react';
+import { Camera, CameraOff, Video, AlertCircle, SwitchCamera, FlipHorizontal, RefreshCw } from 'lucide-react';
 
 export const VideoFeed: React.FC = () => {
   const {
@@ -42,6 +42,8 @@ export const VideoFeed: React.FC = () => {
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [isMirrored, setIsMirrored] = useState<boolean>(true); // default true for front/selfie camera
   const [isFlippingCamera, setIsFlippingCamera] = useState<boolean>(false);
+  const [showDetectionRetryPrompt, setShowDetectionRetryPrompt] = useState<boolean>(false);
+  const lastFaceDetectedTimeRef = useRef<number>(Date.now());
 
   // Services instances (persistent across renders)
   const cameraServiceRef = useRef<CameraService>(new CameraService());
@@ -123,6 +125,20 @@ export const VideoFeed: React.FC = () => {
     };
   }, []);
 
+  // Handler to retry face detection and reset computer vision tracking
+  const handleRetryDetection = async () => {
+    prevCenterRef.current = null;
+    smootherRef.current.clear();
+    faceTrackerRef.current.resetTracking();
+    try {
+      await faceTrackerRef.current.reinit();
+    } catch (err) {
+      console.warn('Reinit face tracker warning:', err);
+    }
+    lastFaceDetectedTimeRef.current = Date.now();
+    setShowDetectionRetryPrompt(false);
+  };
+
   // Handler to flip camera (front <-> rear / environment) on phones and tablets
   const handleFlipCamera = async () => {
     if (isFlippingCamera || devVideoMode) return;
@@ -136,17 +152,40 @@ export const VideoFeed: React.FC = () => {
     }
 
     try {
-      prevCenterRef.current = null; // Reset quality gate reference center to prevent false motion flag
+      // 1. Explicitly stop existing pipeline loop before switching streams
+      stopPipelineLoop();
+
+      // 2. Clear state, reset tracking counters and quality gates
+      prevCenterRef.current = null;
+      smootherRef.current.clear();
+      faceTrackerRef.current.resetTracking();
+      lastFaceDetectedTimeRef.current = Date.now();
+      setShowDetectionRetryPrompt(false);
       setInitError(null);
+
+      // 3. Switch camera stream
       const newStream = await cameraServiceRef.current.startCamera(video, undefined, nextFacingMode);
       setFacingMode(nextFacingMode);
-      // Front camera defaults to mirrored for natural selfie feel; back camera defaults to natural view
+
+      // 4. Update mirroring (front camera defaults to mirrored; back camera defaults to natural view)
       setIsMirrored(nextFacingMode === 'user');
       setActiveStream(newStream);
       setCameraActive(true);
+
+      // 5. Ensure video playback is active
+      try {
+        await video.play();
+      } catch {
+        // play() might already be active
+      }
+
+      // 6. Restart pipeline loop with the new video stream
+      startPipelineLoop();
     } catch (err: any) {
       console.error('Camera flip failed:', err);
       setInitError(`Unable to switch camera: ${err.message || err.name}`);
+      // Restart loop so previous video stream doesn't freeze
+      startPipelineLoop();
     } finally {
       setIsFlippingCamera(false);
     }
@@ -227,19 +266,41 @@ export const VideoFeed: React.FC = () => {
     };
   }, [devVideoMode, devVideoUrl]);
 
-  // Main processing loop using requestVideoFrameCallback / requestAnimationFrame
+  // Main processing loop using standard requestAnimationFrame with auto-recovery
   const startPipelineLoop = () => {
     if (isLoopRunningRef.current) return;
     isLoopRunningRef.current = true;
 
+    let isProcessing = false;
+
     const processFrame = (now: DOMHighResTimeStamp) => {
       if (!isLoopRunningRef.current) return;
+
+      // Always schedule the next animation frame immediately
+      // This guarantees the pipeline loop NEVER dies under any circumstances
+      animationFrameIdRef.current = requestAnimationFrame(processFrame);
 
       const video = videoRef.current;
       const canvas = overlayCanvasRef.current;
 
-      if (video && video.readyState >= 2 && canvas) {
-        runSingleFramePipeline(video, canvas, now);
+      if (
+        !isProcessing &&
+        video &&
+        video.readyState >= 2 &&
+        !video.paused &&
+        !video.ended &&
+        video.videoWidth > 0 &&
+        video.videoHeight > 0 &&
+        canvas
+      ) {
+        isProcessing = true;
+        runSingleFramePipeline(video, canvas, now)
+          .catch((pipelineErr) => {
+            console.warn('Frame pipeline execution warning:', pipelineErr);
+          })
+          .finally(() => {
+            isProcessing = false;
+          });
       }
 
       // FPS Calculation (every 500 ms)
@@ -254,24 +315,9 @@ export const VideoFeed: React.FC = () => {
         const dropped = classifierRef.current?.getDroppedFramesCount() || 0;
         updateTelemetry(currentFpsRef.current, Math.round(latency * 10) / 10, dropped);
       }
-
-      // Schedule next frame with requestVideoFrameCallback or requestAnimationFrame
-      if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && video) {
-        video.requestVideoFrameCallback((_, metadata) => {
-          processFrame(metadata.expectedDisplayTime || performance.now());
-        });
-      } else {
-        animationFrameIdRef.current = requestAnimationFrame(processFrame);
-      }
     };
 
-    if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && videoRef.current) {
-      videoRef.current.requestVideoFrameCallback((_, metadata) => {
-        processFrame(metadata.expectedDisplayTime || performance.now());
-      });
-    } else {
-      animationFrameIdRef.current = requestAnimationFrame(processFrame);
-    }
+    animationFrameIdRef.current = requestAnimationFrame(processFrame);
   };
 
   const stopPipelineLoop = () => {
@@ -323,13 +369,23 @@ export const VideoFeed: React.FC = () => {
       videoWidth: vw,
       videoHeight: vh,
       prevCenter: prevCenterRef.current,
-      minBoxSizePx: 64,
-      minConfidence: 0.50,
-      maxMotionDisplacement: 0.15,
+      minBoxSizePx: 40,
+      minConfidence: 0.30,
+      maxMotionDisplacement: 0.25,
     });
 
-    if (qualityResult.center) {
+    if (qualityResult.passed && qualityResult.center) {
       prevCenterRef.current = qualityResult.center;
+      lastFaceDetectedTimeRef.current = Date.now();
+      if (showDetectionRetryPrompt) {
+        setShowDetectionRetryPrompt(false);
+      }
+    } else {
+      // Clear prevCenter so subsequent frames can re-acquire face without motion lock
+      prevCenterRef.current = null;
+      if (Date.now() - lastFaceDetectedTimeRef.current > 3000 && !showDetectionRetryPrompt) {
+        setShowDetectionRetryPrompt(true);
+      }
     }
 
     // Build key-value map for blendshapes
@@ -465,10 +521,10 @@ export const VideoFeed: React.FC = () => {
 
     if (!box) {
       if (!blinded) {
-        // Draw NO_FACE indicator in corner
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.9)';
-        ctx.font = 'bold 14px ui-sans-serif, system-ui';
-        ctx.fillText(`⚠️ NO FACE DETECTED (${qualityFlag})`, 16, 32);
+        // Draw subtle scanning indicator in corner
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+        ctx.font = 'bold 13px ui-sans-serif, system-ui';
+        ctx.fillText(`🔍 Scanning for face... (${qualityFlag})`, 16, 28);
       }
       return;
     }
@@ -611,6 +667,23 @@ export const VideoFeed: React.FC = () => {
           </span>
         )}
       </div>
+
+      {/* Face Detection Active Auto-Recovery & Re-scan Helper (Bottom Center) */}
+      {cameraActive && !devVideoMode && showDetectionRetryPrompt && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center space-x-2.5 bg-slate-900/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-sky-500/50 text-[11px] font-medium text-slate-200 shadow-2xl z-10">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+          <span>Searching for face...</span>
+          <button
+            type="button"
+            onClick={handleRetryDetection}
+            className="flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold transition-all cursor-pointer text-[10px] shadow"
+            title="Force reset and re-scan face detection"
+          >
+            <RefreshCw className="w-2.5 h-2.5" />
+            <span>Re-scan</span>
+          </button>
+        </div>
+      )}
 
       {/* Mobile-Friendly Camera Flip & Mirror Controls (Top Right) */}
       {!devVideoMode && (
