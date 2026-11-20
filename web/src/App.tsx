@@ -63,7 +63,7 @@ export const App: React.FC = () => {
 
       {/* Static Footer with Regulatory & Clinical Disclaimer */}
       <footer className="bg-slate-900/60 border-t border-slate-800/80 py-3 px-4 text-center text-[11px] text-slate-500">
-        EmoDent Web is an unvalidated research prototype designed as a passive monitoring adjunct.
+        DentBot is an unvalidated research prototype designed as a passive monitoring adjunct.
         Not certified for diagnostic or clinical use. All inference executed on-device.
       </footer>
     </div>

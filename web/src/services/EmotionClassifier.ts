@@ -81,7 +81,7 @@ export class OnnxWorkerEmotionClassifier implements IEmotionClassifier {
   private currentPendingFrameId = -1;
   private modelUrl: string;
 
-  constructor(modelUrl: string = '/models/emodent_cnn.onnx') {
+  constructor(modelUrl: string = '/models/dentbot_cnn.onnx') {
     this.modelUrl = modelUrl;
   }
 

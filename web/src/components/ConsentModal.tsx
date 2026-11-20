@@ -48,7 +48,7 @@ export const ConsentModal: React.FC = () => {
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-bold tracking-tight">Clinical Research Consent & Protocol</h2>
-            <p className="text-xs text-slate-400">EmoDent Web — Pediatric Dental Distress Monitoring Prototype</p>
+            <p className="text-xs text-slate-400">DentBot — Pediatric Dental Distress Monitoring Prototype</p>
           </div>
         </div>
 

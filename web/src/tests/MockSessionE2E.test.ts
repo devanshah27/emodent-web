@@ -108,7 +108,7 @@ describe('Full 4-Phase Mock Session End-to-End Test', () => {
     const jsonContent = Exporter.generateSessionJSON(metadata, phaseStats, logger.getRecordCount());
     const parsed = JSON.parse(jsonContent);
 
-    expect(parsed.app).toContain('EmoDent Web');
+    expect(parsed.app).toContain('DentBot');
     expect(parsed.metadata.totalRecordedFrames).toBe(80);
     expect(parsed.phases.LOCAL_ANESTHESIA.finalNegativeAffectFlag).toBe(true);
     expect(parsed.phases.PRE_TREATMENT.finalNegativeAffectFlag).toBe(false);

@@ -21,12 +21,12 @@ export const Header: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-base font-extrabold tracking-tight text-white">EmoDent Web</h1>
+              <h1 className="text-base font-extrabold tracking-tight text-white">DentBot</h1>
               <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
                 Research Prototype
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">Pediatric Dental Distress Monitoring Adjunct</p>
+            <p className="text-[11px] text-slate-400">AI Pediatric Dental Distress & Behavior Monitoring</p>
           </div>
         </div>
 

@@ -124,7 +124,7 @@ export class Exporter {
     }
 
     const payload = {
-      app: 'EmoDent Web Research Prototype',
+      app: 'DentBot Research Prototype',
       version: '0.2.0',
       notice: 'Passive research monitoring adjunct - NOT a medical or diagnostic device',
       metadata: {

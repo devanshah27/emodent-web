@@ -99,7 +99,7 @@ export const VideoRecorder: React.FC<{ stream?: MediaStream | null }> = ({ strea
         {recordedBlobUrl && (
           <a
             href={recordedBlobUrl}
-            download={`emodent_recording_${participantId}_${Date.now()}.webm`}
+            download={`dentbot_recording_${participantId}_${Date.now()}.webm`}
             className="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition-all cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />

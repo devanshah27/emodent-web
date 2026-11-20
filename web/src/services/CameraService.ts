@@ -1,21 +1,20 @@
 export class CameraService {
   private stream: MediaStream | null = null;
   private videoElement: HTMLVideoElement | null = null;
+  private currentFacingMode: 'user' | 'environment' = 'user';
+
+  public getFacingMode(): 'user' | 'environment' {
+    return this.currentFacingMode;
+  }
 
   public async startCamera(
     videoElement: HTMLVideoElement,
-    constraints: MediaStreamConstraints = {
-      video: {
-        width: { ideal: 640 },
-        height: { ideal: 480 },
-        frameRate: { ideal: 30 },
-        facingMode: 'user',
-      },
-      audio: false,
-    }
+    constraints?: MediaStreamConstraints,
+    facingMode: 'user' | 'environment' = 'user'
   ): Promise<MediaStream> {
     this.stopCamera();
     this.videoElement = videoElement;
+    this.currentFacingMode = facingMode;
 
     // Ensure video element properties for smooth autoplay without browser policy restrictions
     videoElement.muted = true;
@@ -26,8 +25,20 @@ export class CameraService {
       throw new Error('Camera access is not supported in this browser or environment (requires HTTPS or localhost).');
     }
 
+    const defaultConstraints: MediaStreamConstraints = {
+      video: {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        frameRate: { ideal: 30 },
+        facingMode: { ideal: facingMode },
+      },
+      audio: false,
+    };
+
+    const finalConstraints = constraints || defaultConstraints;
+
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+      this.stream = await navigator.mediaDevices.getUserMedia(finalConstraints);
       videoElement.srcObject = this.stream;
 
       // Wait for metadata with a timeout so it never hangs
@@ -73,6 +84,27 @@ export class CameraService {
 
       return this.stream;
     } catch (err: any) {
+      // If ideal facingMode failed (e.g. desktop with single webcam), try without facingMode constraint
+      if (finalConstraints.video && typeof finalConstraints.video === 'object' && 'facingMode' in finalConstraints.video) {
+        try {
+          console.warn(`Initial camera start with facingMode=${facingMode} failed, falling back to default camera:`, err);
+          const fallbackConstraints: MediaStreamConstraints = {
+            video: {
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+              frameRate: { ideal: 30 },
+            },
+            audio: false,
+          };
+          this.stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+          videoElement.srcObject = this.stream;
+          await videoElement.play().catch(() => {});
+          return this.stream;
+        } catch (fallbackErr) {
+          // continue to standard error formatting
+        }
+      }
+
       const msg = (err.message || '').toLowerCase();
       if (err.name === 'AbortError' || msg.includes('interrupted') || msg.includes('abort')) {
         return this.stream!;
@@ -87,6 +119,14 @@ export class CameraService {
         throw new Error(`Failed to access camera: ${err.message || err.name}`);
       }
     }
+  }
+
+  public async switchCamera(
+    facingMode?: 'user' | 'environment'
+  ): Promise<MediaStream | null> {
+    if (!this.videoElement) return null;
+    const targetFacingMode = facingMode || (this.currentFacingMode === 'user' ? 'environment' : 'user');
+    return this.startCamera(this.videoElement, undefined, targetFacingMode);
   }
 
   public stopCamera(): void {

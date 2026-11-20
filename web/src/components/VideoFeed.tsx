@@ -16,7 +16,7 @@ import {
   QualityFlag,
   BlendshapeCategory,
 } from '../types';
-import { Camera, CameraOff, Video, AlertCircle } from 'lucide-react';
+import { Camera, CameraOff, Video, AlertCircle, SwitchCamera, FlipHorizontal } from 'lucide-react';
 
 export const VideoFeed: React.FC = () => {
   const {
@@ -39,12 +39,21 @@ export const VideoFeed: React.FC = () => {
   const [cameraActive, setCameraActive] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
   const [classifierBackend, setClassifierBackend] = useState<string>('initializing');
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+  const [isMirrored, setIsMirrored] = useState<boolean>(true); // default true for front/selfie camera
+  const [isFlippingCamera, setIsFlippingCamera] = useState<boolean>(false);
 
   // Services instances (persistent across renders)
   const cameraServiceRef = useRef<CameraService>(new CameraService());
   const faceTrackerRef = useRef<FaceTracker>(new FaceTracker());
   const classifierRef = useRef<IEmotionClassifier | null>(null);
   const smootherRef = useRef<EmotionSmoother>(new EmotionSmoother(smoothingWindow));
+  const activePhaseRef = useRef(activePhase);
+
+  // Always keep activePhaseRef in sync
+  useEffect(() => {
+    activePhaseRef.current = activePhase;
+  }, [activePhase]);
 
   // Frame processing state
   const isLoopRunningRef = useRef(false);
@@ -71,17 +80,23 @@ export const VideoFeed: React.FC = () => {
         // Initialize MediaPipe Face Landmarker
         await faceTrackerRef.current.init();
 
-        // Initialize ONNX Web Worker classifier
+        // Initialize ONNX Web Worker classifier (DentBot CNN)
         let classifier: IEmotionClassifier;
         try {
-          classifier = new OnnxWorkerEmotionClassifier('/models/emodent_cnn.onnx');
+          classifier = new OnnxWorkerEmotionClassifier('/models/dentbot_cnn.onnx');
           await classifier.init();
           setClassifierBackend(classifier.getBackend());
         } catch (workerErr) {
-          console.warn('Worker init failed, falling back to mock classifier:', workerErr);
-          classifier = new MockEmotionClassifier();
-          await classifier.init();
-          setClassifierBackend('mock');
+          console.warn('Worker init failed with dentbot_cnn.onnx, trying fallback or mock:', workerErr);
+          try {
+            classifier = new OnnxWorkerEmotionClassifier('/models/dentbot_cnn.onnx');
+            await classifier.init();
+            setClassifierBackend(classifier.getBackend());
+          } catch {
+            classifier = new MockEmotionClassifier();
+            await classifier.init();
+            setClassifierBackend('mock');
+          }
         }
 
         if (!isCancelled) {
@@ -107,6 +122,40 @@ export const VideoFeed: React.FC = () => {
       faceTrackerRef.current.close();
     };
   }, []);
+
+  // Handler to flip camera (front <-> rear / environment) on phones and tablets
+  const handleFlipCamera = async () => {
+    if (isFlippingCamera || devVideoMode) return;
+    setIsFlippingCamera(true);
+    const nextFacingMode = facingMode === 'user' ? 'environment' : 'user';
+
+    const video = videoRef.current;
+    if (!video) {
+      setIsFlippingCamera(false);
+      return;
+    }
+
+    try {
+      prevCenterRef.current = null; // Reset quality gate reference center to prevent false motion flag
+      setInitError(null);
+      const newStream = await cameraServiceRef.current.startCamera(video, undefined, nextFacingMode);
+      setFacingMode(nextFacingMode);
+      // Front camera defaults to mirrored for natural selfie feel; back camera defaults to natural view
+      setIsMirrored(nextFacingMode === 'user');
+      setActiveStream(newStream);
+      setCameraActive(true);
+    } catch (err: any) {
+      console.error('Camera flip failed:', err);
+      setInitError(`Unable to switch camera: ${err.message || err.name}`);
+    } finally {
+      setIsFlippingCamera(false);
+    }
+  };
+
+  // Handler to toggle horizontal mirror view without changing camera stream
+  const handleToggleMirror = () => {
+    setIsMirrored((prev) => !prev);
+  };
 
   // Handle Video Source Start / Stop
   useEffect(() => {
@@ -341,10 +390,13 @@ export const VideoFeed: React.FC = () => {
     // Negative affect flag: angry | fear | sad = 1; happy | neutral = 0
     const isNegativeAffect = ['angry', 'fear', 'sad'].includes(smoothedEmotion);
 
+    // Always retrieve current active phase directly to guarantee zero closure staleness
+    const currentPhase = useSessionStore.getState().activePhase;
+
     const frameResult: FrameResult = {
       timestamp_ms: Date.now(),
       participant_id: participantId,
-      phase: activePhase,
+      phase: currentPhase,
       rawEmotion,
       smoothedEmotion,
       confidence: topConfidence,
@@ -359,7 +411,7 @@ export const VideoFeed: React.FC = () => {
     // Update Zustand state for dashboard
     setCurrentFrame(frameResult);
 
-    // 6. Log to SessionLogger
+    // 6. Log to SessionLogger with current phase
     sessionLogger.logFrame(frameResult);
 
     // 7. Render Canvas Visual Overlays
@@ -374,12 +426,14 @@ export const VideoFeed: React.FC = () => {
       qualityFlag,
       showFaceMesh,
       isBlindedMode,
-      isNegativeAffect
+      isNegativeAffect,
+      isMirrored
     );
   };
 
   /**
    * Draws bounding box, emotion badge, and face mesh onto the overlay canvas.
+   * If isMirrored is true, horizontally inverts coordinate mapping to match mirrored video display.
    */
   const renderVisualOverlays = (
     ctx: CanvasRenderingContext2D,
@@ -392,7 +446,8 @@ export const VideoFeed: React.FC = () => {
     qualityFlag: QualityFlag,
     renderMesh: boolean,
     blinded: boolean,
-    isNegativeAffect?: boolean
+    isNegativeAffect?: boolean,
+    mirrored?: boolean
   ) => {
     // Render face mesh points if enabled and not blinded
     if (!blinded && renderMesh && landmarks && landmarks.length > 0) {
@@ -400,8 +455,10 @@ export const VideoFeed: React.FC = () => {
       for (let i = 0; i < landmarks.length; i += 3) {
         // sample every 3rd point for performance
         const lm = landmarks[i];
+        const lx = mirrored ? (1 - lm.x) * vw : lm.x * vw;
+        const ly = lm.y * vh;
         ctx.beginPath();
-        ctx.arc(lm.x * vw, lm.y * vh, 1.2, 0, 2 * Math.PI);
+        ctx.arc(lx, ly, 1.2, 0, 2 * Math.PI);
         ctx.fill();
       }
     }
@@ -416,7 +473,8 @@ export const VideoFeed: React.FC = () => {
       return;
     }
 
-    const bx = box.xMin * vw;
+    const rawBx = box.xMin * vw;
+    const bx = mirrored ? (1 - box.xMin - box.width) * vw : rawBx;
     const by = box.yMin * vh;
     const bw = box.width * vw;
     const bh = box.height * vh;
@@ -483,12 +541,14 @@ export const VideoFeed: React.FC = () => {
 
   return (
     <div className="relative w-full aspect-[4/3] max-h-[520px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex items-center justify-center">
-      {/* Underlying Video */}
+      {/* Underlying Video with responsive mirror flip */}
       <video
         ref={videoRef}
         playsInline
         muted
-        className="w-full h-full object-contain"
+        className={`w-full h-full object-contain transition-transform duration-200 ${
+          isMirrored ? 'scale-x-[-1]' : 'scale-x-100'
+        }`}
       />
 
       {/* Transparent Overlay Canvas */}
@@ -512,7 +572,7 @@ export const VideoFeed: React.FC = () => {
               const video = videoRef.current;
               if (video) {
                 cameraServiceRef.current
-                  .startCamera(video)
+                  .startCamera(video, undefined, facingMode)
                   .then((stream) => {
                     setInitError(null);
                     setActiveStream(stream);
@@ -535,8 +595,8 @@ export const VideoFeed: React.FC = () => {
         </div>
       )}
 
-      {/* Camera Live Indicator */}
-      <div className="absolute top-3 left-3 flex items-center space-x-2 bg-slate-900/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-slate-700/60 text-[11px] font-medium z-10">
+      {/* Camera Live Indicator (Top Left) */}
+      <div className="absolute top-3 left-3 flex items-center space-x-2 bg-slate-900/85 backdrop-blur-sm px-2.5 py-1 rounded-full border border-slate-700/60 text-[11px] font-medium z-10">
         <span
           className={`w-2 h-2 rounded-full ${
             cameraActive ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
@@ -551,6 +611,38 @@ export const VideoFeed: React.FC = () => {
           </span>
         )}
       </div>
+
+      {/* Mobile-Friendly Camera Flip & Mirror Controls (Top Right) */}
+      {!devVideoMode && (
+        <div className="absolute top-3 right-3 flex items-center space-x-1.5 z-10">
+          {/* Flip Camera (Front / Back on Mobile) */}
+          <button
+            type="button"
+            onClick={handleFlipCamera}
+            disabled={isFlippingCamera}
+            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900/85 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700/80 backdrop-blur-sm text-[11px] font-semibold transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
+            title="Switch between front selfie camera and back environment camera"
+          >
+            <SwitchCamera className={`w-3.5 h-3.5 text-sky-400 ${isFlippingCamera ? 'animate-spin' : ''}`} />
+            <span>{facingMode === 'user' ? 'Flip to Rear' : 'Flip to Front'}</span>
+          </button>
+
+          {/* Mirror View Toggle */}
+          <button
+            type="button"
+            onClick={handleToggleMirror}
+            className={`flex items-center space-x-1 px-2 py-1 rounded-full border backdrop-blur-sm text-[11px] font-semibold transition-all shadow-md active:scale-95 cursor-pointer ${
+              isMirrored
+                ? 'bg-sky-950/80 border-sky-500/60 text-sky-300'
+                : 'bg-slate-900/85 border-slate-700/80 text-slate-400 hover:text-slate-200'
+            }`}
+            title="Toggle horizontal mirror reflection (does not alter machine learning accuracy)"
+          >
+            <FlipHorizontal className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{isMirrored ? 'Mirrored' : 'Natural'}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

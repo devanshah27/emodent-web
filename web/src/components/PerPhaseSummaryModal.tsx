@@ -23,7 +23,7 @@ export const PerPhaseSummaryModal: React.FC = () => {
     const dateStr = new Date().toISOString().slice(0, 10);
     Exporter.triggerDownload(
       csv,
-      `emodent_${participantId}_frames_${dateStr}.csv`,
+      `dentbot_${participantId}_frames_${dateStr}.csv`,
       'text/csv;charset=utf-8;'
     );
   };
@@ -34,7 +34,7 @@ export const PerPhaseSummaryModal: React.FC = () => {
     const dateStr = new Date().toISOString().slice(0, 10);
     Exporter.triggerDownload(
       json,
-      `emodent_${participantId}_summary_${dateStr}.json`,
+      `dentbot_${participantId}_summary_${dateStr}.json`,
       'application/json;charset=utf-8;'
     );
   };
@@ -82,12 +82,18 @@ export const PerPhaseSummaryModal: React.FC = () => {
                     </div>
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        stat.finalNegativeAffectFlag
+                        stat.totalFrames === 0
+                          ? 'bg-slate-800 text-slate-400 border border-slate-700'
+                          : stat.finalNegativeAffectFlag
                           ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
                           : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                       }`}
                     >
-                      {stat.finalNegativeAffectFlag ? 'NEGATIVE AFFECT (1)' : 'CALM / NEUTRAL (0)'}
+                      {stat.totalFrames === 0
+                        ? 'AWAITING PROCEDURE'
+                        : stat.finalNegativeAffectFlag
+                        ? 'NEGATIVE AFFECT (1)'
+                        : 'COOPERATIVE / CALM (0)'}
                     </span>
                   </div>
 
